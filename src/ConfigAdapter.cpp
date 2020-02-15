@@ -9,10 +9,10 @@ ConfigAdapter::ConfigAdapter() {}
 int ConfigAdapter::Open(const std::string filename) {
 	_stream = std::ifstream(filename);
 	if(_stream.is_open()) {
-		return OK;
+		return 0;
 	} else {
 		perror("");
-		return unopened;
+		return -1;
 	}
 }
 

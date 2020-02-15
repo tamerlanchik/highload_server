@@ -120,5 +120,5 @@ int inflate_config(std::shared_ptr<Config> ptr, const std::string filename) {
 		printf("Cannot open config");
 		return ERROR;
 	}
-	int res = ConfigParser(ptr).parse(adapter);
+	return ConfigParser(ptr).parse(adapter);
 }

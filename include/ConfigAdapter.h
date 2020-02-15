@@ -15,8 +15,14 @@ protected:
 	std::ifstream _stream;
 public:
 	ConfigAdapter();
+	//	Open the specific config file
+	//	Returns 0 if success and -1 if error case
 	int Open(const std::string filename);
+
+	//	Returns EOF flag if file was ended
 	int Next();
+
+	//	Reads pair[param_name, param_value]
 	virtual std::pair<std::string, std::any> Get() = 0;
 };
 
