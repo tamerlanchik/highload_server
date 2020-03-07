@@ -10,6 +10,8 @@
 #include <any>
 #include <map>
 
+//	Stores params in key-value form
+//	and provides an IO interface
 class Config {
 private:
 	std::map<std::string, std::any> _map;
@@ -27,6 +29,8 @@ public:
 	int GetInt(const std::string name);
 };
 
+//	A functional bridge
+//	between Config and ConfigAdapter
 class ConfigParser {
 private:
 	std::shared_ptr<Config> _config;

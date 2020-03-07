@@ -4,4 +4,5 @@ project(HighLoad)
 set(CMAKE_CXX_STANDARD 17)
 include_directories(./include)
 
-add_executable(HighLoad src/main.cpp src/ConfigAdapter.cpp src/ConfigParser.cpp)
+add_executable(HighLoad src/main.cpp src/ConfigAdapter.cpp src/ConfigParser.cpp src/Server.cpp src/HttpParser.cpp
+        src/Server.cpp src/NetWorker.cpp)

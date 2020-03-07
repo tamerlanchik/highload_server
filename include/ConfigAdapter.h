@@ -8,6 +8,9 @@
 #include <fstream>
 #include <any>
 
+//	Provides an interface for
+//	reading specific config file format
+//	in "key-value" form
 class ConfigAdapter{
 public:
 	enum STATUS {OK, eof, unopened};

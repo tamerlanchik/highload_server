@@ -2,6 +2,10 @@
 #include <ConfigParser.h>
 #include <string>
 #include <sstream>
+#include <Server.h>
+#include <unistd.h>
+#include <csignal>
+#include <sys/wait.h>
 
 const int ERROR = -1;
 char* error_text;
@@ -29,12 +33,45 @@ int main(int argc, char* argv[]) {
 	}
 	std::shared_ptr<Config> server_config = std::make_shared<Config>(Config());
 	inflate_config(server_config, preconfig.config_path);
+	// TODO: config validate
 
-
-	printf("CPU: %d, Threads: %d, DocRoot: %s\n",
+	Server server(
 			server_config->GetInt("cpu_limit"),
 			server_config->GetInt("thread_limit"),
-			server_config->GetString("document_root").c_str());
+			server_config->GetString("document_root"));
+
+	int pid = fork();
+	if(pid < 0) {
+		perror("Error during main fork");
+		return pid;
+	} else if(pid > 0) {
+		signal(SIGINT, [](int s) {
+			std::cerr << "Server process stopping...\n";
+			exit(0);
+		});
+		if(ERROR == server.Run()) {
+			std::cerr << "Error during server work!\n";
+			int ppid = getppid();
+			kill(ppid, SIGINT);
+			return ERROR;
+		}
+	} else {
+		std::string buffer;
+		signal(SIGINT, [](int s) {
+			std::cerr << "Server process stopped. Stopping parent...\n";
+			exit(1);
+		});
+		while(true) {
+			std::cin >> buffer;
+			if(buffer == "stop") {
+				std::cerr << "Stopping server...\n";
+				kill(pid, SIGINT);
+				wait(NULL);
+				return 0;
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -87,6 +124,9 @@ int inflate_config(std::shared_ptr<Config> ptr, const std::string filename) {
 			std::string line;
 			std::getline(_stream, line);
 			std::pair<std::string, std::any> p;
+			if(line.empty()) {
+				return p;
+			}
 			std::stringstream s;
 			s.str(line);
 			//	config form:
