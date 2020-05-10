@@ -1,6 +1,9 @@
 Web server test suite
 =====================
+
 source: https://github.com/init/http-test-suite
+
+task: https://park.mail.ru/blog/topic/view/15095
 
 Implement a Web server in the programming language of your choice. Libraries for helping manage TCP socket connections *may* be used (libevent allowed). Libraries that implement any part of HTTP or multiprocessing model *must not* be used. Languages and platforms implementing hidden multithreading (Go, Node.js) are not allowed.
 
