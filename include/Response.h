@@ -11,8 +11,6 @@ using std::string;
 
 class Response {
 private:
-//    static const size_t bufferSize = 1024;
-//    char buffer[bufferSize];
     bool checkRootDir(string, string);
 
     string typeDefinition(string);

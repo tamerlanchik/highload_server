@@ -46,5 +46,6 @@ void Server::handleAccept(Connection::pointer new_connection, const boost::syste
         new_connection->start();
     }
 
+    // start awaiting for a connection again
     startAccept();
 }

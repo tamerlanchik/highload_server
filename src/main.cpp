@@ -59,15 +59,6 @@ int main(int argc, char* argv[]) {
 			exit(0);
 		});
 		std::cerr << "Starting a server...\n";
-//		char* args[] = {std::to_string(pid).c_str(), "-c", std::to_string(1).c_str(), '\0'};
-//        execl("cpulimit",
-//              "-p",
-//              std::to_string(pid).c_str(),
-//              "-c",
-//              std::to_string(server_config->GetInt("cpu_limit")).c_str(),
-//              "-l",
-//              std::to_string(100*server_config->GetInt("cpu_limit")).c_str(),
-//              NULL);
 		if(ERROR == server.Run()) {
 			std::cerr << "Error during server work!\n";
 			int ppid = getppid();

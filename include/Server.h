@@ -38,8 +38,6 @@ private:
 //    std::vector<std:mutex> _mutex_pool;
 //    boost::asio::thread_pool _thread_pool;
 
-//	static void dispatchering_connection_cb(uv_stream_t* server, int status);
-
 };
 
 #endif //HIGHLOAD_SERVER_H

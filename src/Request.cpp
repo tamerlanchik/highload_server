@@ -8,10 +8,11 @@
 using std::string;
 using std::vector;
 
-Request::Request(std::string dir): rootDir(dir) {
-}
+Request::Request(std::string dir): rootDir(dir) {}
 
-void Request::parseRequest(string request, size_t size, std::function<void (const string&)> sendHeader, std::function<void (int, size_t)> sendFile) {
+void Request::parseRequest(string request, size_t size,
+        std::function<void (const string&)> sendHeader,
+        std::function<void (int, size_t)> sendFile) {
     std::cerr << "parseRequest\n";
     std::istringstream iss(request);
     iss >> method;
@@ -21,13 +22,14 @@ void Request::parseRequest(string request, size_t size, std::function<void (cons
         return;
     }
 
+    const size_t header_limit = 100;
     iss >> url >> version;
-    iss.ignore(100, '\n'); // \n after HTTP/1.1
-    iss.ignore(100, '\n'); // Host: localhost:8000
-    iss.ignore(100, ':');  // Accept-Encoding:
+    iss.ignore(header_limit, '\n'); // \n after HTTP/1.1
+    iss.ignore(header_limit, '\n'); // Host: localhost:8000
+    iss.ignore(header_limit, ':');  // Accept-Encoding:
     iss >> encoding;
-    iss.ignore(100, '\n'); // \n after identity
-    iss.ignore(100, ':');  // Content-Length:
+    iss.ignore(header_limit, '\n'); // \n after identity
+    iss.ignore(header_limit, ':');  // Content-Length:
     iss >> contentLength;
 
     if (method == GET) {

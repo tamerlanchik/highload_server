@@ -57,7 +57,6 @@ void Response::head(string rootDir, string originalPath, std::function<void (con
 }
 
 void Response::get(string rootDir, string originalPath, std::function<void (const string&)> sendHeader, std::function<void (int, size_t)> sendFile, bool isSendFile) {
-    std::cerr << "Response: get\n";
     string path, pathWithoutQuery;
     pathWithoutQuery = removeQuery(originalPath);
 
@@ -72,23 +71,18 @@ void Response::get(string rootDir, string originalPath, std::function<void (cons
         dirExist = true;
     }
 
-    std::cerr << "Response: 75\n";
     boost::system::error_code ec;
     fs::path absolutePath = canonical(relativePath, rootDir, ec);
     if (ec) {
-        std::cerr << "Response: 79\n";
         perror("");
         if (dirExist) {
-            std::cerr << "Response: 81\n";
             forbidden(sendHeader); // this dir exist but file index.html does not exist
         } else {
-            std::cerr << "Response: 84\n";
             notFound(sendHeader); // this file/dir does not exist
         }
         return;
     }
 
-    std::cerr << "Respone: checkRootDir\n";
     if(!checkRootDir(absolutePath.string(), rootDir)) {
         notFound(sendHeader); // this file over the root_path
         return;
@@ -99,17 +93,13 @@ void Response::get(string rootDir, string originalPath, std::function<void (cons
     string contentType = typeDefinition(absolutePath.string());
     string length = headerContentLength + std::to_string(filesize);
 
-    std::cerr << "sendHeader\n";
     sendHeader(headerOk + mainHeaders() + contentType + length + "\r\n\r\n");
 
-    std::cerr << "start sending file\n";
     if (isSendFile) {
-        std::cerr << "senfDile OK\n";
         int fd = open(absolutePath.c_str(), O_RDONLY);
         sendFile(fd, filesize);
         close(fd);
     }
-    std::cerr << "afterSendFile\n";
 }
 
 bool Response::checkRootDir(string rootDir, string path) {
