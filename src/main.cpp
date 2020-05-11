@@ -6,6 +6,12 @@
 #include <unistd.h>
 #include <csignal>
 #include <sys/wait.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <wait.h>
+#include <string.h>
+#include <stdlib.h>
 
 const int ERROR = -1;
 char* error_text;
@@ -14,7 +20,7 @@ struct InitSettings {
 public:
 	std::string config_path;
 	InitSettings() {
-		config_path = "./httpd.conf";
+		config_path = "/etc/httpd.conf";
 	}
 };
 
@@ -31,8 +37,10 @@ int main(int argc, char* argv[]) {
 		printf("Cannot parse cmd arguments!\n");
 		return ERROR;
 	}
+	std::cout << "Starting inflting config\n";
 	std::shared_ptr<Config> server_config = std::make_shared<Config>(Config());
 	inflate_config(server_config, preconfig.config_path);
+	std::cout << "Config is inflated\n";
 	// TODO: config validate
 
 	Server server(
@@ -41,14 +49,25 @@ int main(int argc, char* argv[]) {
 			server_config->GetString("document_root"));
 
 	int pid = fork();
+	std::cerr << pid << "\n";
 	if(pid < 0) {
 		perror("Error during main fork");
 		return pid;
-	} else if(pid > 0) {
+	} else if(pid == 0) {
 		signal(SIGINT, [](int s) {
 			std::cerr << "Server process stopping...\n";
 			exit(0);
 		});
+		std::cerr << "Starting a server...\n";
+//		char* args[] = {std::to_string(pid).c_str(), "-c", std::to_string(1).c_str(), '\0'};
+//        execl("cpulimit",
+//              "-p",
+//              std::to_string(pid).c_str(),
+//              "-c",
+//              std::to_string(server_config->GetInt("cpu_limit")).c_str(),
+//              "-l",
+//              std::to_string(100*server_config->GetInt("cpu_limit")).c_str(),
+//              NULL);
 		if(ERROR == server.Run()) {
 			std::cerr << "Error during server work!\n";
 			int ppid = getppid();
@@ -56,20 +75,61 @@ int main(int argc, char* argv[]) {
 			return ERROR;
 		}
 	} else {
-		std::string buffer;
-		signal(SIGINT, [](int s) {
-			std::cerr << "Server process stopped. Stopping parent...\n";
-			exit(1);
-		});
-		while(true) {
-			std::cin >> buffer;
-			if(buffer == "stop") {
-				std::cerr << "Stopping server...\n";
-				kill(pid, SIGINT);
-				wait(NULL);
-				return 0;
-			}
-		}
+	    int pid2 = fork();
+        if(pid2 < 0) {
+            perror("Error during main fork");
+            return pid;
+        } else if(pid2 == 0) {
+            signal(SIGINT, [](int s) {
+                std::cerr << "CPULIMIT proc stopping...\n";
+                exit(0);
+            });
+            std::cerr << "cpulimit starting...\n";
+//            system()
+            int res = execlp("cpulimit", "cpulimit",
+              "-p",
+              std::to_string(pid).c_str(),
+              "-c",
+              std::to_string(server_config->GetInt("cpu_limit")).c_str(),
+              "-l",
+              std::to_string(100*server_config->GetInt("cpu_limit")).c_str(),
+              NULL);
+            perror("");
+            std::cerr << "res: "<< res << ": cpulimit ended\n";
+        } else {
+            std::string buffer;
+            signal(SIGINT, [](int s) {
+                std::cerr << "Server process stopped. Stopping parent...\n";
+                exit(1);
+                return;
+            });
+            std::cerr << "Parent. Waiting for command...\n";
+            while(true) {
+                std::cin >> buffer;
+                if(buffer == "stop" || buffer == "s") {
+                    std::cerr << "Stopping server...\n";
+                    kill(pid, SIGINT);
+                    kill(pid2, SIGINT);
+                    wait(NULL);
+                    return 0;
+                }
+            }
+        }
+//		std::string buffer;
+//		signal(SIGINT, [](int s) {
+//			std::cerr << "Server process stopped. Stopping parent...\n";
+//			exit(1);
+//			return;
+//		});
+//		while(true) {
+//			std::cin >> buffer;
+//			if(buffer == "stop" || buffer == "s") {
+//				std::cerr << "Stopping server...\n";
+//				kill(pid, SIGINT);
+//				wait(NULL);
+//				return 0;
+//			}
+//		}
 	}
 
 	return 0;
@@ -108,11 +168,13 @@ int parse_cmd_args(const int argc, char* argv[], InitSettings& strct) {
 
 	for(int i = 1; i < argc; i++) {
 		if(commands[0].compare(argv[i])) {
+		    std::cout << "Got an arg: " << argv[i] << "\n";
 			if(argc - 1 < i + 1) {
 				error_text = "Wrong args count";
 				return ERROR;
 			}
 			strct.config_path = commands[0].inflate(Option<std::string>::STR, argv[i+1]);
+            std::cout << strct.config_path << "\n";
 		}
 	}
 	return 0;
@@ -121,8 +183,10 @@ int parse_cmd_args(const int argc, char* argv[], InitSettings& strct) {
 int inflate_config(std::shared_ptr<Config> ptr, const std::string filename) {
 	class HttpdConfigAdaper : public ConfigAdapter {
 		std::pair<std::string, std::any> Get() {
+		    std::cerr << "Start Get()\n";
 			std::string line;
-			std::getline(_stream, line);
+			std::getline(*_stream, line);
+            std::cerr << "get line Get()\n";
 			std::pair<std::string, std::any> p;
 			if(line.empty()) {
 				return p;
@@ -132,6 +196,7 @@ int inflate_config(std::shared_ptr<Config> ptr, const std::string filename) {
 			//	config form:
 			//	key value #comment
 			while(!s.eof()) {	// read key
+                std::cerr << "read key Get()\n";
 				s >> line;
 				if(line[0] != '#') {
 					p.first = line;
@@ -139,6 +204,7 @@ int inflate_config(std::shared_ptr<Config> ptr, const std::string filename) {
 				}
 			}
 			while(!s.eof()) {	// read value
+                std::cerr << "read value Get()\n";
 				s >> line;
 				if(line[0] != '#') {
 					//	if there is a number in string,
@@ -157,8 +223,10 @@ int inflate_config(std::shared_ptr<Config> ptr, const std::string filename) {
 
 	HttpdConfigAdaper adapter;
 	if(HttpdConfigAdaper::OK != adapter.Open(filename)) {
-		printf("Cannot open config");
+		std::cerr << "Cannot open config: " << filename << "\n";
 		return ERROR;
+	} else {
+	    std::cout << "Config is opened\n";
 	}
 	return ConfigParser(ptr).parse(adapter);
 }

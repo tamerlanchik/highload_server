@@ -3,6 +3,7 @@
 //
 #include <ConfigParser.h>
 #include <ConfigAdapter.h>
+#include <iostream>
 
 ConfigParser::ConfigParser(std::shared_ptr<Config> ptr) {
 	_config = ptr;
@@ -10,6 +11,7 @@ ConfigParser::ConfigParser(std::shared_ptr<Config> ptr) {
 
 int ConfigParser::parse(ConfigAdapter& src) {
 	while(ConfigAdapter::eof != src.Next()) {
+	    std::cerr << "Conf parse iteration start\n";
 		auto val = src.Get();
 		_config->Put(val.first, val.second);
 	}

@@ -7,8 +7,8 @@
 ConfigAdapter::ConfigAdapter() {}
 
 int ConfigAdapter::Open(const std::string filename) {
-	_stream = std::ifstream(filename);
-	if(_stream.is_open()) {
+	_stream = new std::ifstream(filename);
+	if(_stream->is_open()) {
 		return 0;
 	} else {
 		perror("");
@@ -17,5 +17,5 @@ int ConfigAdapter::Open(const std::string filename) {
 }
 
 int ConfigAdapter::Next() {
-	return static_cast<int>(_stream.eof());
+	return static_cast<int>(_stream->eof());
 }

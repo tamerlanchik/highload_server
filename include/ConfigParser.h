@@ -6,7 +6,7 @@
 #define HIGHLOAD_CONFIGPARSER_H
 
 #include <memory>
-#include <ConfigAdapter.h>
+#include "ConfigAdapter.h"
 #include <any>
 #include <map>
 

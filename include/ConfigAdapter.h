@@ -15,7 +15,7 @@ class ConfigAdapter{
 public:
 	enum STATUS {OK, eof, unopened};
 protected:
-	std::ifstream _stream;
+	std::ifstream* _stream;
 public:
 	ConfigAdapter();
 	//	Open the specific config file
