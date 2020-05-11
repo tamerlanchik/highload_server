@@ -1,8 +1,0 @@
-//
-// Created by Ian on 16.02.2020.
-//
-
-#ifndef HIGHLOAD_HTTPPARCER_H
-#define HIGHLOAD_HTTPPARCER_H
-
-#endif //HIGHLOAD_HTTPPARCER_H
