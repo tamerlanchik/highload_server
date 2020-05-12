@@ -43,16 +43,16 @@ void Connection::handleRead(const boost::system::error_code &error, size_t size)
 }
 
 void Connection::handleWrite(const boost::system::error_code& error, std::size_t bytes_transferred) {
-    std::cerr << "handleWrite\n";
+//    std::cerr << "handleWrite\n";
     if (error) {
-        std::cerr << "handleWrite: error\n";
+//        std::cerr << "handleWrite: error\n";
         stop();
         return;
     }
 }
 
 void Connection::sendMessage(const std::string &message) {
-    std::cerr << "sendMessage\n";
+//    std::cerr << "sendMessage\n";
 
     socket.async_write_some(
             boost::asio::buffer(message, message.size()),
@@ -64,12 +64,11 @@ void Connection::sendMessage(const std::string &message) {
 }
 
 void Connection::sendFile(int fd, size_t size) {
-    std::cerr << "sendFile\n";
     ssize_t result = 0;
     while (offset < size) {
         result = sendfile(socket.native_handle(), fd, &offset, filePartSize);
         if (result < 0) {
-            std::cerr << "error: " << errno << std::endl;
+//            std::cerr << "error: " << errno << std::endl;
             if (errno == 32 || errno == 104) {
                 stop();
                 return;

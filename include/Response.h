@@ -28,7 +28,7 @@ public:
     const string headerNotAllowed = string("HTTP/1.1 405 Method Not Allowed\r\n");
 
     const string headerDate = string("Date: ");
-    const string headerServer = string("Server: Seva/0.1 (Unix)\r\n");
+    const string headerServer = string("Server: Highload (Unix)\r\n");
     const string headerConnection = string("Connection: close\r\n");
     const string headerContentLength = string("Content-Length: ");
     const string headerContentType = string("Content-Type: ");

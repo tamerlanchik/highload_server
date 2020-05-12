@@ -13,7 +13,7 @@ Request::Request(std::string dir): rootDir(dir) {}
 void Request::parseRequest(string request, size_t size,
         std::function<void (const string&)> sendHeader,
         std::function<void (int, size_t)> sendFile) {
-    std::cerr << "parseRequest\n";
+//    std::cerr << "parseRequest\n";
     std::istringstream iss(request);
     iss >> method;
 
@@ -33,11 +33,11 @@ void Request::parseRequest(string request, size_t size,
     iss >> contentLength;
 
     if (method == GET) {
-        std::cerr << "get\n";
+//        std::cerr << "get\n";
         response.get(rootDir, url, sendHeader, std::move(sendFile), true);
         return;
     } else if (method == HEAD) {
-        std::cerr << "head\n";
+//        std::cerr << "head\n";
         response.head(rootDir, url, sendHeader);
     }
 
