@@ -16,10 +16,8 @@ private:
     string typeDefinition(string);
 
     string mainHeaders();
-
 public:
     static std::map<std::string, std::string> _content_types;
-
 public:
     const string headerOk = string("HTTP/1.1 200 OK\r\n");
     const string headerBadRequest = string("HTTP/1.1 400 Bad Request\r\n");
